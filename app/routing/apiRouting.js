@@ -1,39 +1,53 @@
-// Question: What does this code do?
-//JQUERY YOU ARE MAKING AN AJAX REQUEST TO REACH OUR OWN API this is how you create your own API
-/*$("#add-btn").on("click", function (event) {
-  event.preventDefault();
-  var updateSurvey = {
-      name: $("#name").val().trim(),
-      photo: $("#photo").val().trim(),
-      scores: $("#scores").val().trim()
-  };
 
-  // Question: What does this code do??
-  $.post("/api/survey", updateSurvey)
-      .then(function (data) {
-          console.log("survey.html", data);
-          alert("Updating survey...");
-      });
-});
-*/
+//had to make it a function to get it into a module.export; so that you can connect with other parts of the application.
 
-module.exports = function(app){
-  app.get("/api/survey", function(req, res) {
-    return res.json(survey);
-  });
+var friends = require('../data/friends');
+module.exports = function (app) {
+
+  app.get("/api/friends", function (req, res) {
+    res.json(friends);
+  })
+
+  app.post('/api/friends', function (req, res) {
+    var bestMatch = {
+      name: "",
+      photo: "",
+      friendsDifference: Infinity
+    }
+
+    //Here is were we take the survey POST(results) and parse it.
+    var userData = req.body;
+    var userScores = userData.scores;
+
+    console.log(userScores);
+
+    var totalDifference = 0;
+
+    //Nested for loop first to go through all the friends in the database
+    for (var i = 0; i < friends.length; i++) {
+      console.log(friends[i]);
+      totalDifference = 0;
+      //Then loop through the scores of each friend
+      for (let j = 0; j < friends[i].scores[j]; j++) {
+
+        totalDifference += Math.abs(parseInt(underScores[j]) - parseInt(friends[i].scores[j]));
+      }
+
+      if (totalDifference <= bestMatch.friendsDifference) {
+        bestMatch.name = friends[i].name;
+        bestMatch.photo = friends[i].photo;
+        bestMatch.friendsDifference = totalDifference;
+      }
+    }
+
+    friends.push(userData);
+
+    res.json(bestMatch);
+  })
+
 
   // Capture Survey information - takes in JSON input
-app.post("/api/survey", function(req, res) {
-    // req.body hosts is equal to the JSON post sent from the user
-    // This works because of our body parsing middleware
-    var newSurvey = req.body;
-  
-    console.log(newSurvey);
-  
-    survey.push(newSurvey);
-  
-    res.json(newSurvey);
-  });
+
 
 }
 // Displays all possible friends
